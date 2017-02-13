@@ -1,8 +1,11 @@
+
 <div class="row" *ngIf="isLoaded">
   <div class="column"><input type="text" name="search-text" id="search-text" [formControl]="searchInput" placeholder="ex: ロゴ, 矢印, arrow"></div>
   <div class="column column-25"><input type="submit" value="filter" (click)="submit()" class="button"></div>
 </div>
 <p *ngIf="!isLoaded">Loading...</p>
+
+<p><small>※複数キーワードには未対応です</small></p>
 
 <table>
   <thead>

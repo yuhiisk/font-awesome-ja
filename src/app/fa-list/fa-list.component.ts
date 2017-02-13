@@ -22,7 +22,7 @@ export class FaListComponent implements OnInit {
   constructor(private faHttpService: FaHttpService) {
 
     // Load and prepare tokenizer
-    window['kuromoji'].builder({ dicPath: '/font-awesome-ja/dict/' }).build((error, _tokenizer) => {
+    window['kuromoji'].builder({ dicPath: './dict/' }).build((error, _tokenizer) => {
       if (error != null) {
         console.log(error);
       }
