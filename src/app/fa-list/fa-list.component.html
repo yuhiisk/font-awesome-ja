@@ -1,0 +1,26 @@
+<div class="row" *ngIf="isLoaded">
+  <div class="column"><input type="text" name="search-text" id="search-text" [formControl]="searchInput" placeholder="ex: ロゴ, 矢印, arrow"></div>
+  <div class="column column-25"><input type="submit" value="filter" (click)="submit()" class="button"></div>
+</div>
+<p *ngIf="!isLoaded">Loading...</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>icon</th>
+      <th>name</th>
+      <th>unicode</th>
+      <th>keywords</th>
+      <th>copy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of results">
+      <td><i [ngClass]="['fa', data.name, 'fa-2x', 'fa-fw']"></i></td>
+      <td>{{data.name}}</td>
+      <td>{{data.unicode}}</td>
+      <td>{{data.keywords}}</td>
+      <td><button class="copy" [attr.data-name]="data.name">copy</button></td>
+    </tr>
+  </tbody>
+</table>
