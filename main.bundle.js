@@ -230,7 +230,7 @@ var FaListComponent = (function () {
         this.isLoaded = false;
         this.searchInput = new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]();
         // Load and prepare tokenizer
-        window['kuromoji'].builder({ dicPath: '/font-awesome-ja/dict/' }).build(function (error, _tokenizer) {
+        window['kuromoji'].builder({ dicPath: './dict/' }).build(function (error, _tokenizer) {
             if (error != null) {
                 console.log(error);
             }
@@ -357,7 +357,7 @@ module.exports = "<h1>\n  {{title}}\n</h1>\n\n<app-fa-list></app-fa-list>\n"
 /***/ 461:
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"row\" *ngIf=\"isLoaded\">\n  <div class=\"column\"><input type=\"text\" name=\"search-text\" id=\"search-text\" [formControl]=\"searchInput\" placeholder=\"ex: ロゴ, 矢印, arrow\"></div>\n  <div class=\"column column-25\"><input type=\"submit\" value=\"filter\" (click)=\"submit()\" class=\"button\"></div>\n</div>\n<p *ngIf=\"!isLoaded\">Loading...</p>\n\n<table>\n  <thead>\n    <tr>\n      <th>icon</th>\n      <th>name</th>\n      <th>unicode</th>\n      <th>keywords</th>\n      <th>copy</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr *ngFor=\"let data of results\">\n      <td><i [ngClass]=\"['fa', data.name, 'fa-2x', 'fa-fw']\"></i></td>\n      <td>{{data.name}}</td>\n      <td>{{data.unicode}}</td>\n      <td>{{data.keywords}}</td>\n      <td><button class=\"copy\" [attr.data-name]=\"data.name\">copy</button></td>\n    </tr>\n  </tbody>\n</table>\n"
+module.exports = "\n<div class=\"row\" *ngIf=\"isLoaded\">\n  <div class=\"column\"><input type=\"text\" name=\"search-text\" id=\"search-text\" [formControl]=\"searchInput\" placeholder=\"ex: ロゴ, 矢印, arrow\"></div>\n  <div class=\"column column-25\"><input type=\"submit\" value=\"filter\" (click)=\"submit()\" class=\"button\"></div>\n</div>\n<p *ngIf=\"!isLoaded\">Loading...</p>\n\n<p><small>※複数キーワードには未対応です</small></p>\n\n<table>\n  <thead>\n    <tr>\n      <th>icon</th>\n      <th>name</th>\n      <th>unicode</th>\n      <th>keywords</th>\n      <th>copy</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr *ngFor=\"let data of results\">\n      <td><i [ngClass]=\"['fa', data.name, 'fa-2x', 'fa-fw']\"></i></td>\n      <td>{{data.name}}</td>\n      <td>{{data.unicode}}</td>\n      <td>{{data.keywords}}</td>\n      <td><button class=\"copy\" [attr.data-name]=\"data.name\">copy</button></td>\n    </tr>\n  </tbody>\n</table>\n"
 
 /***/ }),
 
