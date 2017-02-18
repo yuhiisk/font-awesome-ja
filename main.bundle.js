@@ -132,7 +132,7 @@ var AppComponent = (function () {
         this.title = 'Font awesome(v4.7) japanese search';
     }
     AppComponent = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Component */])({
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* Component */])({
             selector: 'app-root',
             template: __webpack_require__(460),
             styles: [__webpack_require__(458)]
@@ -149,7 +149,7 @@ var AppComponent = (function () {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__ = __webpack_require__(114);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_forms__ = __webpack_require__(250);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(257);
@@ -205,10 +205,11 @@ var AppModule = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(250);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime__ = __webpack_require__(464);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__fa_http_service__ = __webpack_require__(275);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__ = __webpack_require__(114);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_forms__ = __webpack_require__(250);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_debounceTime__ = __webpack_require__(464);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_debounceTime___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_debounceTime__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__fa_http_service__ = __webpack_require__(275);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FaListComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -219,16 +220,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+
 
 
 
 
 var FaListComponent = (function () {
-    function FaListComponent(faHttpService) {
+    function FaListComponent(document, faHttpService) {
         var _this = this;
+        this.document = document;
         this.faHttpService = faHttpService;
+        this.tags = ['ロゴ', '矢印', 'カーソル'];
         this.isLoaded = false;
-        this.searchInput = new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]();
+        this.isVisible = 'invisible';
+        this.model = { text: '', type: 'and' };
+        this.searchInput = new __WEBPACK_IMPORTED_MODULE_2__angular_forms__["b" /* FormControl */]();
+        this.footerSearchInput = new __WEBPACK_IMPORTED_MODULE_2__angular_forms__["b" /* FormControl */]();
         // Load and prepare tokenizer
         window['kuromoji'].builder({ dicPath: './dict/' }).build(function (error, _tokenizer) {
             if (error != null) {
@@ -240,20 +250,16 @@ var FaListComponent = (function () {
                 _this.input = document.getElementById('search-text');
                 _this.input.focus();
             }, 300);
-            //vm.message = "Ready";
-            //
-            //vm.inputText = "すもももももももものうち";
-            //vm.isLoading = false;
         });
         // clipboard
         this.clipboard = new window['Clipboard']('.copy', {
             text: function (trigger) {
-                // TODO: option
+                // TODO: optionを選択できるようにする
                 return "<i class=\"fa " + trigger.getAttribute('data-name') + "\"></i>";
             }
         });
         this.clipboard.on('success', function (e) {
-            //console.info('Action:', e.action);
+            //console.info('Action:', .action);
             //console.info('Text:', e.text);
             //console.info('Trigger:', e.trigger);
             //e.clearSelection();
@@ -262,16 +268,15 @@ var FaListComponent = (function () {
                 e.trigger.innerHTML = 'copy';
             }, 1000);
         });
-        //console.log(this.searchInput.valueChanges);
         this.searchInput.valueChanges
-            .debounceTime(150)
+            .debounceTime(300)
             .subscribe(function (text) {
-            //console.log(text);
             if (text === '') {
                 _this.results = _this.datas;
             }
             else {
-                _this.search(_this.tokenizer.tokenize(text));
+                var tokenized = _this.tokenizer.tokenize(_this.formatString(text));
+                _this.search(tokenized);
             }
         });
     }
@@ -283,36 +288,103 @@ var FaListComponent = (function () {
             _this.results = data;
         });
     };
-    FaListComponent.prototype.submit = function () {
-        if (this.input.value === '')
-            return;
-        this.search(this.tokenizer.tokenize(this.input.value));
+    FaListComponent.prototype.formatString = function (str) {
+        var text = '';
+        text = str.replace(/\s/g, ',').toLowerCase();
+        return text;
     };
-    FaListComponent.prototype.search = function (tokenized) {
-        //console.log(tokenized, this.datas);
+    FaListComponent.prototype.onSelectSearchType = function (event) {
+        this.model.type = event.target.value;
+    };
+    FaListComponent.prototype.onClickTag = function (event, tag) {
+        this.model.text = tag;
+    };
+    FaListComponent.prototype.submit = function () {
+        if (this.model.text === '')
+            return;
+        var tokenized = this.tokenizer.tokenize(this.formatString(this.input.value));
+        this.search(tokenized);
+    };
+    /**
+     * カンマの分かち書きだけを削除
+     * @param tokenized
+     * @returns {any}
+     */
+    FaListComponent.prototype.deleteSeparater = function (tokenized) {
+        var data;
+        data = tokenized.filter(function (token) {
+            return token.surface_form !== ',';
+        });
+        return data;
+    };
+    /**
+     * 検索
+     * @param _tokenized 分かち書き結果
+     */
+    FaListComponent.prototype.search = function (_tokenized) {
+        var _this = this;
+        var tokenized = this.deleteSeparater(_tokenized);
         var filtered = this.datas.filter(function (data, i) {
             var isMatch = false;
-            tokenized.some(function (token) {
-                if (~data.name.indexOf(token.surface_form) ||
-                    ~data.keywords.indexOf(token.surface_form) ||
-                    (token.reading && ~data.keywords.indexOf(token.reading))) {
+            var checked = [];
+            // AND検索
+            if (_this.model.type === 'and') {
+                tokenized.forEach(function (token) {
+                    if ((~data.name.indexOf(token.surface_form) ||
+                        ~data.keywords.indexOf(token.surface_form)) ||
+                        (token.reading && ~data.keywords.indexOf(token.reading))) {
+                        checked.push(true);
+                    }
+                });
+                if (checked.length === tokenized.length)
                     isMatch = true;
-                    return false;
-                }
-            });
+            }
+            else if (_this.model.type === 'or') {
+                tokenized.some(function (token) {
+                    if (~data.name.indexOf(token.surface_form) ||
+                        ~data.keywords.indexOf(token.surface_form) ||
+                        (token.reading && ~data.keywords.indexOf(token.reading))) {
+                        isMatch = true;
+                        return false;
+                    }
+                });
+            }
             if (isMatch)
                 return data;
         });
-        //console.log(tokenized, filtered);
         this.results = filtered;
     };
+    FaListComponent.prototype.onScroll = function () {
+        var scrollTop = this.document.body.scrollTop;
+        if (scrollTop > 100) {
+            this.isVisible = 'visible';
+        }
+        else if (this.isVisible === 'visible' && scrollTop > 10) {
+            this.isVisible = 'invisible';
+        }
+    };
+    __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* HostListener */])('window:scroll', []), 
+        __metadata('design:type', Function), 
+        __metadata('design:paramtypes', []), 
+        __metadata('design:returntype', void 0)
+    ], FaListComponent.prototype, "onScroll", null);
     FaListComponent = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["U" /* Component */])({
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* Component */])({
             selector: 'app-fa-list',
             template: __webpack_require__(461),
-            styles: [__webpack_require__(459)]
-        }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_3__fa_http_service__["a" /* FaHttpService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__fa_http_service__["a" /* FaHttpService */]) === 'function' && _a) || Object])
+            styles: [__webpack_require__(459)],
+            animations: [
+                __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["W" /* trigger */])('footer', [
+                    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["X" /* state */])('invisible', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Y" /* style */])({ transform: 'translateY(100%)' })),
+                    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["X" /* state */])('visible', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Y" /* style */])({ transform: 'translateY(0)' })),
+                    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* transition */])('invisible => visible', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* animate */])('500ms ease-out')),
+                    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Z" /* transition */])('visible => invisible', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_0" /* animate */])('300ms ease-out')),
+                ])
+            ]
+        }),
+        __param(0, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["q" /* Inject */])(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["c" /* DOCUMENT */])), 
+        __metadata('design:paramtypes', [Object, (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_4__fa_http_service__["a" /* FaHttpService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__fa_http_service__["a" /* FaHttpService */]) === 'function' && _a) || Object])
     ], FaListComponent);
     return FaListComponent;
     var _a;
@@ -343,7 +415,7 @@ module.exports = ""
 /***/ 459:
 /***/ (function(module, exports) {
 
-module.exports = "table td:nth-child(4) {\n  font-family: 'Roboto', 'YuGothic', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;\n}\n\ntable th {\n  text-align: center;\n}\n"
+module.exports = ".search-area {\n  padding: 20px;\n  border-radius: 3px;\n  background-color: #f1f1f1;\n}\n\n.search-area input[type=\"text\"],\n.footer-search input[type=\"text\"] {\n  background-color: #fff;\n}\n\n.shortcuts {\n  margin: 0;\n}\n.shortcuts span {\n  dipslay: inline-block;\n  margin: 0 5px;\n  font-size: 14px;\n}\n.shortcuts span:after {\n  content: ',';\n}\n.shortcuts span:last-child:after {\n  content: '';\n}\n\n.result-view {\n  padding: 0 20px;\n}\n\ntable th {\n  text-align: center;\n}\n\n/* icon */\ntable td:first-child i {\n  /*color: #1E9F75;*/\n  /*color: #59b765;*/\n}\n\n/* keywords */\ntable td:nth-child(4) {\n  font-family: 'Roboto', 'YuGothic', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;\n}\n\ntable td:last-child {\n  text-align: center;\n}\ntable td:last-child button {\n  margin-bottom: 0;\n}\n\n\n/* footer */\n.footer-search {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: auto;\n  padding: 20px;\n  background-color: #f1f1f1;\n  -webkit-transform: translateY(100%);\n  transform: translateY(100%);\n}\n\n.footer-search.is-visible {\n  -webkit-transform: translateY(0);\n  transform: translateY(0);\n}\n\n.footer-search p,\n.footer-search input {\n  margin-bottom: 0;\n}\n\n"
 
 /***/ }),
 
@@ -357,7 +429,7 @@ module.exports = "<h1>\n  {{title}}\n</h1>\n\n<app-fa-list></app-fa-list>\n"
 /***/ 461:
 /***/ (function(module, exports) {
 
-module.exports = "\n<div class=\"row\" *ngIf=\"isLoaded\">\n  <div class=\"column\"><input type=\"text\" name=\"search-text\" id=\"search-text\" [formControl]=\"searchInput\" placeholder=\"ex: ロゴ, 矢印, arrow\"></div>\n  <div class=\"column column-25\"><input type=\"submit\" value=\"filter\" (click)=\"submit()\" class=\"button\"></div>\n</div>\n<p *ngIf=\"!isLoaded\">Loading...</p>\n\n<p><small>※複数キーワードには未対応です</small></p>\n\n<table>\n  <thead>\n    <tr>\n      <th>icon</th>\n      <th>name</th>\n      <th>unicode</th>\n      <th>keywords</th>\n      <th>copy</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr *ngFor=\"let data of results\">\n      <td><i [ngClass]=\"['fa', data.name, 'fa-2x', 'fa-fw']\"></i></td>\n      <td>{{data.name}}</td>\n      <td>{{data.unicode}}</td>\n      <td>{{data.keywords}}</td>\n      <td><button class=\"copy\" [attr.data-name]=\"data.name\">copy</button></td>\n    </tr>\n  </tbody>\n</table>\n"
+module.exports = "<div class=\"search-area\">\n  <div class=\"row\" *ngIf=\"isLoaded\">\n    <div class=\"column\"><input type=\"text\" id=\"search-text\" [(ngModel)]=\"model.text\" name=\"text\" [formControl]=\"searchInput\" placeholder=\"eg: ロゴ, 矢印, arrow\"></div>\n    <div class=\"column column-25\"><input type=\"submit\" value=\"search\" (click)=\"submit()\" class=\"button\"></div>\n  </div>\n  <p *ngIf=\"!isLoaded\">Loading...</p>\n\n  <input type=\"radio\" id=\"and\" name=\"type\" value=\"and\" [checked]=\"model.type === 'and'\" (change)=\"onSelectSearchType($event)\">\n  <label class=\"label-inline\" for=\"and\">AND検索</label>\n\n  <input type=\"radio\" id=\"or\" name=\"type\" value=\"or\" [checked]=\"model.type === 'or'\" (change)=\"onSelectSearchType($event)\">\n  <label class=\"label-inline\" for=\"or\">OR検索</label>\n\n  <p class=\"shortcuts\">shortcuts:\n  <span *ngFor=\"let tag of tags\"><a href=\"#\" (click)=\"onClickTag($event, tag)\">{{tag}}</a></span>\n  </p>\n</div>\n\n<div class=\"result-view\">\n  <table>\n    <thead>\n      <tr>\n        <th>icon</th>\n        <th>name</th>\n        <th>unicode</th>\n        <th>keywords</th>\n        <th>copy</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr *ngFor=\"let data of results\">\n        <td><i [ngClass]=\"['fa', data.name, 'fa-2x', 'fa-fw']\"></i></td>\n        <td>{{data.name}}</td>\n        <td>{{data.unicode}}</td>\n        <td>{{data.keywords}}</td>\n        <td><button class=\"copy\" [attr.data-name]=\"data.name\">copy</button></td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n\n<div [@footer]=\"isVisible\" class=\"footer-search\">\n  <div class=\"row\" *ngIf=\"isLoaded\">\n    <div class=\"column\"><input type=\"text\" [(ngModel)]=\"model.text\" name=\"text\" [formControl]=\"footerSearchInput\" placeholder=\"eg: ロゴ, 矢印, arrow\"></div>\n    <div class=\"column column-25\"><input type=\"submit\" value=\"search\" (click)=\"submit()\" class=\"button\"></div>\n  </div>\n  <p *ngIf=\"!isLoaded\">Loading...</p>\n</div>\n"
 
 /***/ }),
 
